@@ -1,0 +1,15 @@
+package Objects;
+
+import Core.Entities;
+import Core.Entity;
+
+public class Tree extends Entity {
+
+    private static final String SYMBOL = "\uD83C\uDF32";
+    private static final Entities TYPE = Entities.TREE;
+
+
+    public Tree(int id) {
+        super(SYMBOL, TYPE, id);
+    }
+}
