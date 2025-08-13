@@ -25,6 +25,7 @@ public class Entity {
 
     @Override
     public String toString() {
-        return symbol + " " + type + " " + id;
+//        return symbol + " " + type + " " + id;
+        return symbol;
     }
 }

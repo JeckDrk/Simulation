@@ -6,6 +6,7 @@ import Core.Simulation;
 import Core.SimulationMap;
 import Objects.Grass;
 import Objects.Rock;
+import Objects.Tree;
 
 
 public class Main {
@@ -13,12 +14,17 @@ public class Main {
         Creature bunny = new Herbivore(1);
         Entity grass = new Grass(1);
         Entity rock = new Rock(1);
-        SimulationMap map = new SimulationMap(36,6);
-        map.putEntity(1, rock);
-        map.putEntity(11, rock);
-        map.putEntity(21, rock);
-        map.putEntity(5, grass);
-        int[] result = bunny.searchPath(map, 22, Entities.GRASS);
-        System.out.println(result[0] + " " + result[1] + " " + result[2]);
+        Entity tree = new Tree(1);
+        SimulationMap map = new SimulationMap(16,4);
+
+        map.putEntity(0, 1, rock);
+        map.putEntity(2, 3, rock);
+        map.putEntity(3, 2, rock);
+        map.putEntity(2, 0, grass);
+        map.putEntity(1, 1, tree);
+
+        map.showMap();
+//        int[] result = bunny.searchPath(map, 0, 5, Entities.GRASS);
+//        System.out.println(result[0] + " " + result[1] + " " + result[2]);
     }
 }
