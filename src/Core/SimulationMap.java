@@ -50,7 +50,7 @@ public class SimulationMap {
 
     public void putEntity(int x, int y, Entity entity) {
         Cell cell = getCell(x, y);
-        cell.putEntity(entity);
+        cell.putEntity(entity, this);
         cells.put(cell.getId(), cell);
     }
 
@@ -81,10 +81,14 @@ public class SimulationMap {
         return mapHigh;
     }
 
+    public boolean[] getMoves(int x, int y) {
+        return getCell(x,y).getMoves();
+    }
+
     private static class Cell {
-        static int sizeMap = SimulationMap.mapSize;
-        static int widthMap = SimulationMap.mapWidth;
-        static int highMap = SimulationMap.mapHigh;
+        static int mapSize = SimulationMap.mapSize;
+        static int mapWidth = SimulationMap.mapWidth;
+        static int mapHigh = SimulationMap.mapHigh;
         private boolean up = false;
         private boolean down = false;
         private boolean left = false;
@@ -97,17 +101,17 @@ public class SimulationMap {
         public Cell(int x, int y) {
             this.x = x;
             this.y = y;
-            this.id = x + y * widthMap;
+            this.id = x + y * mapWidth;
             if(y != 0){
                 up = true;
             }
-            if (y + 1 != SimulationMap.mapHigh) {
+            if (y + 1 != mapHigh) {
                 down = true;
             }
             if(x != 0){
                 left = true;
             }
-            if (x + 1 != SimulationMap.mapWidth) {
+            if (x + 1 != mapWidth) {
                 right = true;
             }
         }
@@ -116,8 +120,9 @@ public class SimulationMap {
             return entity != null;
         }
 
-        public void putEntity(Entity entity) {
+        public void putEntity(Entity entity, SimulationMap map) {
             fillMovement();
+            entity.setMap(map);
             this.entity = entity;
         }
 
@@ -128,20 +133,24 @@ public class SimulationMap {
             }
             if (down) {
                 Cell cell = getCell(x, y + 1);
-                cell.setDown(false);
+                cell.setUp(false);
             }
             if (left) {
                 Cell cell = getCell(x - 1, y);
-                cell.setLeft(false);
+                cell.setRight(false);
             }
             if (right) {
                 Cell cell = getCell(x + 1, y);
-                cell.setRight(false);
+                cell.setLeft(false);
             }
         }
 
         public Entity getEntity() {
             return entity;
+        }
+
+        public boolean[] getMoves() {
+            return new boolean[]{up,right,down,left};
         }
 
         public void setUp(boolean up) {

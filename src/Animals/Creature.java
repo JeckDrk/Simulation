@@ -2,135 +2,183 @@ package Animals;
 
 import Core.Entities;
 import Core.Entity;
+import Core.Sides;
 import Core.SimulationMap;
 
-import static java.lang.Math.abs;
+import static java.lang.Math.min;
+import static java.lang.Math.max;
 
 public abstract class Creature extends Entity {
 
-    protected static final int ERROR = 90909090;
+    protected static final int RANGE = 6;
 
-    protected static final int RADIUS = 1;
-    protected static final int MOVE = 1;
+    InitMap initMap;
 
-
-    public Creature(String symbol, Entities type, int id) {
+    public Creature(String symbol, Entities type, int id, SimulationMap map) {
         super(symbol, type, id);
+        Creature.map = map;
     }
 
-    public int[] searchPath(SimulationMap map, int xMy, int yMy, Entities lookingType) {
-        int sizeMap = map.getSize();
-        int widthMap = map.getWidth();
-        int highMap = map.getHigh();
+    public void myPriority(){
 
-        final int myObjectMark = 0;
-        final int wrongObjectMark = sizeMap + 1;
-        final int zeroObjectMark = sizeMap +2;
-        final int lookingObjectMark = sizeMap +3;
+    }
 
+    public void showMove(int x, int y, Entities type){
+        initMap = new InitMap(x,y);
+        int[] lookingObjectCords = new int[2];
+        int stepCounter = 0;
+        Sides side = Sides.NONE;
 
-        int mapCount = 1;
-
-        int[] results = new int[6];
-
-        int[][] initMap = new int[highMap][widthMap];
-
-        for(int y = 0; y < highMap; y++){
-            for(int x = 0; x < widthMap; x++){
-                initMap[y][x] = zeroObjectMark;
-            }
-        }
-
-        initMap[yMy][xMy] = myObjectMark;
-
-        for(int y = 0; y < highMap; y++) {
-            for(int x = 0; x < widthMap; x++) {
-                Entity currentObject = map.getEntity(x, y);
-                if (currentObject != null) {
-                    Entities typeCurrentObject = currentObject.getType();
-                    if (lookingType.equals(typeCurrentObject)) {
-                        initMap[y][x] = lookingObjectMark;
-                    } else {
-                        initMap[y][x] = wrongObjectMark;
-                    }
-                    mapCount++;
-                }
-            }
-        }
-
-        int[] lookingCoordinate = new int[2];
-        int moveCount = myObjectMark; // 0
-
-        boolean isFound = false;
-//        while ((mapCount < sizeMap) && !isFound) {
-        while (true) {
-            for (int y = 0; y < highMap; y++) {
-                for (int x = 0; x < widthMap; x++) {
-                    if (initMap[y][x] == moveCount) {
-                        for (int yInv = y - MOVE; yInv <= y + MOVE; yInv += MOVE) {
-                            for (int xInv = x - MOVE; xInv <= x + MOVE; xInv += MOVE) {
-                                if(yInv >= 0 && yInv < highMap && xInv >= 0 && xInv < widthMap) {
-                                    if (initMap[yInv][xInv] == zeroObjectMark) {
-                                        initMap[yInv][xInv] = moveCount + 1;
-                                    } else if (initMap[yInv][xInv] == lookingObjectMark) {
-                                        lookingCoordinate = new int[]{x,y};
-                                        isFound = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if (isFound){
-                            break;
-                        }
-                    }
-                }
-                if (isFound){
-                    break;
-                }
-            }
-            if (isFound){
+        for (; stepCounter < RANGE + 1; stepCounter++) {
+            lookingObjectCords = initMap.tryFoundPath(stepCounter, type);
+            if (lookingObjectCords != null) {
                 break;
             }
-            moveCount++;
         }
 
-        results[0] = moveCount;
-        results[1] = lookingCoordinate[0];
-        results[2] = lookingCoordinate[1];
+        System.out.print("Steps: " + stepCounter);
 
-//        int lookingCountMove = initMap.get(lookingCoordinate);
-//        while (moveCount > myObjectMark + MOVE){
-//            currentInvestigatedCoordinates = new int[]{lookingCoordinate - widthMap, lookingCoordinate + widthMap, lookingCoordinate - MOVE, lookingCoordinate + MOVE};
-//            for (int currentInvestigatedCoordinate : currentInvestigatedCoordinates) {
-//                if ((currentInvestigatedCoordinate >= 0) && (currentInvestigatedCoordinate < sizeMap)
-//                        && (initMap.get(currentInvestigatedCoordinate) < lookingCountMove)) {
-//                    lookingCountMove = initMap.get(currentInvestigatedCoordinate);
-//                    lookingCoordinate = currentInvestigatedCoordinate;
-//                }
-//            }
-//            moveCount = lookingCountMove;
-//        }
-//
-//        results[4] = lookingCoordinate[0];
-//        results[5] = lookingCoordinate[1];
-
-        for (int y = 0; y < highMap; y++) {
-            for (int x = 0; x < widthMap; x++) {
-                System.out.print(initMap[y][x] + " ");
-            }
-            System.out.println();
+        if(lookingObjectCords != null){
+            side = initMap.getSide(x, y, lookingObjectCords[0], lookingObjectCords[1], stepCounter);
+            System.out.print(" Coords: " + lookingObjectCords[0] + ", " + lookingObjectCords[1]);
         }
-        System.out.println();
 
-        return results;
+        System.out.print(" Side: " + side + "\n");
+
+        initMap.printMap();
     }
 
-//
+    static class InitMap {
+        int high = map.getHigh();
+        int width = map.getWidth();
+
+        int xMy;
+        int yMy;
+
+        int upRange;
+        int rightRange;
+        int downRange;
+        int leftRange;
+
+        int markZeroObject = RANGE + 2;
+
+        int[][] movesMap = new int[high][width];
+
+        InitMap(int x, int y) {
+            this.xMy = x;
+            this.yMy = y;
+
+            upRange = max(0, yMy - RANGE);
+            rightRange = min(width, xMy + RANGE);
+            downRange = min(high, yMy + RANGE);
+            leftRange = max(0, xMy - RANGE);
+
+            for(int i = upRange; i < downRange; i++){
+                for(int j = leftRange; j < rightRange; j++){
+                    movesMap[i][j] = markZeroObject;
+                }
+            }
+
+            movesMap[y][x] = 0;
+        }
+
+        public int[] tryFoundPath(int step, Entities type){
+            Entity entity;
+            for(int y = upRange; y < downRange; y++){
+                for(int x = leftRange; x < downRange; x++){
+                    entity = map.getEntity(x, y);
+                    if(movesMap[y][x] == step){
+                        if(entity != null && entity.getType() == type){
+                            return new int[]{x, y};
+                        }
+                        boolean[] myMoves = map.getMoves(x,y);
+                        if (myMoves[0]){
+                            if (movesMap[y - 1][x] == markZeroObject){
+                                movesMap[y - 1][x] = step+1;
+                            }
+                        } else if (y >= upRange){
+                            entity = map.getEntity(x, y - 1);
+                            if (entity != null && entity.getType() == type){
+                                movesMap[y - 1][x] = step+1;
+                            }
+                        }
+                        if (myMoves[1]){
+                            if (movesMap[y][x + 1] == markZeroObject){
+                                movesMap[y][x + 1] = step+1;
+                            }
+                        } else if (x < rightRange){
+                            entity = map.getEntity(x + 1, y);
+                            if (entity != null && entity.getType() == type){
+                                movesMap[y][x + 1] = step+1;
+                            }
+                        }
+                        if (myMoves[2]){
+                            if (movesMap[y + 1][x] == markZeroObject){
+                                movesMap[y + 1][x] = step+1;
+                            }
+                        } else if (y < downRange){
+                            entity = map.getEntity(x, y + 1);
+                            if (entity != null && entity.getType() == type){
+                                movesMap[y + 1][x] = step+1;
+                            }
+                        }
+                        if (myMoves[3]){
+                            if (movesMap[y][x - 1] == markZeroObject){
+                                movesMap[y][x - 1] = step+1;
+                            }
+                        } else if (x >= leftRange){
+                            entity = map.getEntity(x - 1, y);
+                            if (entity != null && entity.getType() == type){
+                                movesMap[y][x - 1] = step+1;
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public int getStep(int x, int y){
+            return movesMap[y][x];
+        }
+
+        public Sides getSide(int x, int y, int xLooking, int yLooking, int step){
+            if (step == 1){
+                return Sides.NONE;
+            }
+            for(; step > 1; step--){
+                if(yLooking - 1 >= upRange && movesMap[yLooking - 1][xLooking] < step){
+                    yLooking--;
+                } else if (yLooking + 1 < downRange && movesMap[yLooking + 1][xLooking] < step) {
+                    yLooking++;
+                } else if (xLooking + 1 < rightRange && movesMap[yLooking][xLooking + 1] < step) {
+                    xLooking++;
+                } else if (xLooking - 1 >= leftRange && movesMap[yLooking][xLooking - 1] < step) {
+                    xLooking--;
+                }
+            }
+            if(y - yLooking > 0){
+                return Sides.UP;
+            } else if (x - xLooking < 0){
+                return Sides.RIGHT;
+            } else if (y - yLooking < 0){
+                return Sides.DOWN;
+            } else if(x - xLooking > 0){
+                return Sides.LEFT;
+            } else {
+                return Sides.NONE;
+            }
+        }
+
+        public void printMap(){
+            for(int y = 0; y < high; y++){
+                for(int x = 0; x < width; x++){
+                    System.out.print(movesMap[y][x] + " ");
+                }
+                System.out.println();
+            }
+        }
+    }
 //    public abstract int getMove(Map<Integer, Entity> map, int widthMap, int location);
 //    public abstract void eat();
 }
-//
-//class initMap() {
-//
-//}

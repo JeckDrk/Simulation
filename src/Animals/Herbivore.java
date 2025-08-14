@@ -2,6 +2,7 @@ package Animals;
 
 import Core.Entities;
 import Core.Entity;
+import Core.SimulationMap;
 
 import java.util.Map;
 
@@ -16,8 +17,8 @@ public class Herbivore extends Creature {
     private static final Entities DANGER = Entities.PREDATOR;
 
 
-    public Herbivore(int id) {
-        super(SYMBOL, TYPE, id);
+    public Herbivore(int id, SimulationMap map) {
+        super(SYMBOL, TYPE, id, map);
     }
 
 //    @Override
