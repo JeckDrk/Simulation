@@ -11,9 +11,4 @@ public class Rock extends Entity {
     public Rock() {
         super(SYMBOL, TYPE);
     }
-
-    @Override
-    public boolean isCreature() {
-        return false;
-    }
 }

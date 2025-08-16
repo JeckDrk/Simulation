@@ -34,9 +34,7 @@ public class Simulation {
             scanner = new Scanner(System.in);
             String input = scanner.nextLine();
             switch(input){
-                case "1" -> {
-                    actions.nextTurn();
-                }
+                case "1" -> actions.nextTurn();
                 case "2" -> {
                     System.out.println("Сколько: ");
                     scanner = new Scanner(System.in);

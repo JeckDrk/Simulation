@@ -157,7 +157,7 @@ public abstract class Creature extends Entity {
     }
 
     protected void makeMoveRandom(){
-        Sides side = Sides.NONE;
+        Sides side;
         boolean[] myMoves = map.getMoves(x,y);
         for (int i = 0; i < myMoves.length; i++){
             if (myMoves[i]){

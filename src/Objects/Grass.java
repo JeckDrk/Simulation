@@ -15,9 +15,4 @@ public class Grass extends Entity {
     public Entities getType(){
         return TYPE;
     }
-
-    @Override
-    public boolean isCreature() {
-        return false;
-    }
 }

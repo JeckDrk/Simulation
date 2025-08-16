@@ -12,9 +12,4 @@ public class Tree extends Entity {
     public Tree() {
         super(SYMBOL, TYPE);
     }
-
-    @Override
-    public boolean isCreature() {
-        return false;
-    }
 }

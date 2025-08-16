@@ -43,9 +43,4 @@ public class Predator extends Creature {
         map.getEntity(x,y).getDamage(909090);
         food += 10;
     }
-
-    @Override
-    public boolean isCreature() {
-        return true;
-    }
 }

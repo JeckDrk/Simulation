@@ -59,9 +59,4 @@ public class Herbivore extends Creature {
             map.moveEntity(x,y,Sides.UP);
         }
     }
-
-    @Override
-    public boolean isCreature() {
-        return true;
-    }
 }

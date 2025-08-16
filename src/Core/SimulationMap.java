@@ -53,11 +53,6 @@ public class SimulationMap {
         return null;
     }
 
-    public boolean isContainsEntity(int x, int y) {
-        Cell cell = getCell(x, y);
-        return cell.isContainsEntity();
-    }
-
     public boolean putEntity(int x, int y, Entity entity) {
         Cell cell = getCell(x, y);
         if(cell.isContainsEntity()) {
