@@ -7,16 +7,21 @@ public class SimulationMap {
     protected static int mapSize;
     protected static int mapWidth;
     protected static int mapHigh;
-    protected static final Map<Integer, Cell> cells = new HashMap<>(mapSize);
+    private static final Map<Integer, Cell> cells = new HashMap<>(mapSize);
 
-    public SimulationMap(int mapSize, int mapWidth) {
-        SimulationMap.mapSize = mapSize;
+    public SimulationMap(int mapWidth, int mapHigh) {
+        if (mapSize % mapWidth != 0) {
+            while (mapSize % mapWidth != 0){
+                mapSize++;
+            }
+        }
         SimulationMap.mapWidth = mapWidth;
-        SimulationMap.mapHigh = mapSize / mapWidth;
+        SimulationMap.mapHigh = mapHigh;
+        SimulationMap.mapSize = mapHigh * mapWidth;
         fillMap();
     }
 
-    public void showMap(){
+    public void printMap(){
         for (int y = 0; y < mapHigh; y++){
             for (int x = 0; x < mapWidth; x++){
                 Cell cell = getCell(x, y);
@@ -48,29 +53,57 @@ public class SimulationMap {
         return null;
     }
 
-    public void putEntity(int x, int y, Entity entity) {
+    public boolean isContainsEntity(int x, int y) {
         Cell cell = getCell(x, y);
-        cell.putEntity(entity, this);
-        cells.put(cell.getId(), cell);
+        return cell.isContainsEntity();
     }
 
-    public static Cell getCell(int x, int y) {
+    public boolean putEntity(int x, int y, Entity entity) {
+        Cell cell = getCell(x, y);
+        if(cell.isContainsEntity()) {
+            return false;
+        }
+        entity.setX(x);
+        entity.setY(y);
+        cell.putEntity(entity, this);
+        cells.put(cell.getId(), cell);
+        return true;
+    }
+
+    public void removeEntity(int x, int y) {
+        Cell cell = getCell(x, y);
+        cell.removeEntity();
+    }
+
+    public void moveEntity(int xFrom, int yFrom, Sides side) {
+        Cell cellFrom = getCell(xFrom, yFrom);
+        Entity entity = cellFrom.getEntity();
+        Cell cellTarget;
+        if (side == Sides.UP){
+            cellTarget = getCell(xFrom, yFrom - 1);
+        } else if (side == Sides.RIGHT){
+            cellTarget = getCell(xFrom + 1, yFrom);
+        } else if (side == Sides.DOWN){
+            cellTarget = getCell(xFrom, yFrom + 1);
+        } else {
+            cellTarget = getCell(xFrom - 1, yFrom);
+        }
+        if (cellTarget.getEntity() == null && cellFrom.removeEntity()) {
+            cellTarget.putEntity(entity, this);
+        }
+    }
+
+    private static Cell getCell(int x, int y) {
         int id = x + y * mapWidth;
+        if (!cells.containsKey(id)) {
+            throw new IllegalStateException("Cell not found at [" + x + "," + y + "]");
+        }
         return cells.get(id);
     }
 
-    public static void putCell(int x, int y, Cell cell) {
-        int id = x + y * mapWidth;
-        cells.put(id, cell);
-    }
-
-    public static void putCell(Cell cell) {
+    private static void putCell(Cell cell) {
         int id = cell.getId();
         cells.put(id, cell);
-    }
-
-    public int getSize() {
-        return mapSize;
     }
 
     public int getWidth() {
@@ -86,9 +119,8 @@ public class SimulationMap {
     }
 
     private static class Cell {
-        static int mapSize = SimulationMap.mapSize;
-        static int mapWidth = SimulationMap.mapWidth;
-        static int mapHigh = SimulationMap.mapHigh;
+        private static final int mapWidth = SimulationMap.mapWidth;
+        private static final int mapHigh = SimulationMap.mapHigh;
         private boolean up = false;
         private boolean down = false;
         private boolean left = false;
@@ -121,32 +153,58 @@ public class SimulationMap {
         }
 
         public void putEntity(Entity entity, SimulationMap map) {
-            fillMovement();
+            fillCollision();
+            entity.setX(x);
+            entity.setY(y);
             entity.setMap(map);
             this.entity = entity;
         }
 
-        void fillMovement(){
-            if (up) {
+        public Entity getEntity() {
+            return entity;
+        }
+
+        private void fillCollision(){
+            if (up || y - 1 >= 0) {
                 Cell cell = getCell(x, y - 1);
                 cell.setDown(false);
             }
-            if (down) {
+            if (down || y + 1 < mapHigh) {
                 Cell cell = getCell(x, y + 1);
                 cell.setUp(false);
             }
-            if (left) {
+            if (left || x - 1 >= 0) {
                 Cell cell = getCell(x - 1, y);
                 cell.setRight(false);
             }
-            if (right) {
+            if (right || x + 1 < mapWidth) {
                 Cell cell = getCell(x + 1, y);
                 cell.setLeft(false);
             }
         }
 
-        public Entity getEntity() {
-            return entity;
+        public boolean removeEntity() {
+            if (entity != null) {
+                if (up || y - 1 >= 0) {
+                    Cell cell = getCell(x, y - 1);
+                    cell.setDown(true);
+                }
+                if (down || y + 1 < mapHigh) {
+                    Cell cell = getCell(x, y + 1);
+                    cell.setUp(true);
+                }
+                if (left || x - 1 >= 0) {
+                    Cell cell = getCell(x - 1, y);
+                    cell.setRight(true);
+                }
+                if (right || x + 1 < mapWidth) {
+                    Cell cell = getCell(x + 1, y);
+                    cell.setLeft(true);
+                }
+                entity = null;
+                return true;
+            }
+            return false;
         }
 
         public boolean[] getMoves() {

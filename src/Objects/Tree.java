@@ -9,7 +9,12 @@ public class Tree extends Entity {
     private static final Entities TYPE = Entities.TREE;
 
 
-    public Tree(int id) {
-        super(SYMBOL, TYPE, id);
+    public Tree() {
+        super(SYMBOL, TYPE);
+    }
+
+    @Override
+    public boolean isCreature() {
+        return false;
     }
 }

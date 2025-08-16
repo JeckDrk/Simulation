@@ -1,17 +1,35 @@
 package Core;
 
-public class Entity {
+public abstract class Entity {
     private final String symbol;
     private final Entities type;
-    protected int id;
+    protected int idMy = 0;
+    static protected int id = 0;
     protected static SimulationMap map;
     protected int x;
     protected int y;
+    protected int hp = 1;
 
-    public Entity(String symbol, Entities type, int id) {
+    public Entity(String symbol, Entities type) {
         this.symbol = symbol;
         this.type = type;
-        this.id = id;
+        this.idMy = id++;
+    }
+
+    public boolean isDead(){
+        return hp <= 0;
+    }
+
+    public void getDamage(int damage) {
+        hp -= damage;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public void setMap(SimulationMap map) {
@@ -23,7 +41,7 @@ public class Entity {
     }
 
     public int getId() {
-        return id;
+        return idMy;
     }
 
     public Entities getType() {
@@ -35,4 +53,14 @@ public class Entity {
 //        return symbol + " " + type + " " + id;
         return symbol;
     }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public abstract boolean isCreature();
 }

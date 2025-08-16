@@ -1,12 +1,6 @@
 package Animals;
 
-import Core.Entities;
-import Core.Entity;
-import Core.SimulationMap;
-
-import java.util.Map;
-
-import static java.lang.Math.abs;
+import Core.*;
 
 public class Herbivore extends Creature {
 
@@ -16,43 +10,58 @@ public class Herbivore extends Creature {
     private static final Entities FOOD = Entities.GRASS;
     private static final Entities DANGER = Entities.PREDATOR;
 
+    private static final int HP = 30;
 
-    public Herbivore(int id, SimulationMap map) {
-        super(SYMBOL, TYPE, id, map);
+    public Herbivore() {
+        super(SYMBOL, TYPE, HP);
+        food = 20;
+        range = 6;
     }
 
-//    @Override
-//    public int getMove(Map<Integer, Entity> map, int widthMap, int myKey) {
-//
-//        int keyToNearestFood = getNearestObjectTypeOf(map, widthMap, myKey, FOOD);
-//        int keyToNearestDanger = getNearestObjectTypeOf(map, widthMap, myKey, DANGER);
-//
-//        int lengthToFood = cordToLength(myKey, keyToNearestFood, widthMap, RADIUS, MOVE);
-//        int lengthToDanger = cordToLength(myKey, keyToNearestDanger, widthMap, RADIUS, MOVE);
-//
-//        if ((lengthToDanger < lengthToFood) && (keyToNearestDanger != ERROR)) {
-//            return getMoveFromDanger();
-//        } else if (keyToNearestFood != ERROR) {
-//            return getMoveToFood();
-//        } else {
-//            return getMoveRandom();
-//        }
-//    }
+    @Override
+    public void makeMove(){
+        if(food <= 0){
+            getDamage(10);
+        } else {
+            food--;
+        }
+        int lengthToDanger = howLong(DANGER);
+        Sides sideDanger = getTargetSide(lengthToDanger);
+        int lengthToFood = howLong(FOOD);
+        Sides sideFood = getTargetSide(lengthToFood);
+        int[] coordsFood = getTargetObjectCords();
+        if (DANGER == Entities.PREDATOR && lengthToDanger < lengthToFood) {
+            makeMoveFromDanger(sideDanger);
+        } else if (lengthToFood != 1 && sideFood != Sides.NONE) {
+            makeMoveToFood(sideFood);
+        } else if (lengthToFood == 1 && sideFood == Sides.NONE) {
+            makeEat(coordsFood[0], coordsFood[1]);
+            food += 5;
+        } else {
+            makeMoveRandom();
+        }
+    }
 
-//    int getMoveFromDanger(Map<Integer, Entity> map, int widthMap, int myIndex, ){
-//
-//    }
-//
-//    int getMoveToFood(){
-//
-//    }
-//
-//    int getMoveRandom(){
-//
-//    }
+    private void makeEat(int x, int y){
+        map.getEntity(x,y).getDamage(1);
+        food += 10;
+    }
 
-//    @Override
-//    public void eat() {
-//
-//    }
+    private void makeMoveFromDanger(Sides side){
+        boolean[] myMoves = map.getMoves(x,y);
+        if (myMoves[2] && side != Sides.UP){
+            map.moveEntity(x,y,Sides.DOWN);
+        } else if (myMoves[1] && side != Sides.LEFT) {
+            map.moveEntity(x,y,Sides.RIGHT);
+        } else if (myMoves[3] && side != Sides.RIGHT){
+            map.moveEntity(x,y,Sides.LEFT);
+        } else if (myMoves[0] && side != Sides.DOWN){
+            map.moveEntity(x,y,Sides.UP);
+        }
+    }
+
+    @Override
+    public boolean isCreature() {
+        return true;
+    }
 }

@@ -8,11 +8,16 @@ public class Grass extends Entity {
     private static final String SYMBOL = "\uD83C\uDF3F";
     private static final Entities TYPE = Entities.GRASS;
 
-    public Grass(int id) {
-        super(SYMBOL, TYPE, id);
+    public Grass() {
+        super(SYMBOL, TYPE);
     }
 
     public Entities getType(){
         return TYPE;
+    }
+
+    @Override
+    public boolean isCreature() {
+        return false;
     }
 }
