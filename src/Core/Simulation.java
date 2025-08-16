@@ -68,21 +68,11 @@ public class Simulation {
                         intInput = 0;
                     }
                     switch(type) {
-                        case "1" -> {
-                            addEntitiesInList(Entities.ROCK, intInput);
-                        }
-                        case "2" -> {
-                            addEntitiesInList(Entities.GRASS, intInput);
-                        }
-                        case "3" -> {
-                            addEntitiesInList(Entities.TREE, intInput);
-                        }
-                        case "4" -> {
-                            addEntitiesInList(Entities.HERBIVORE, intInput);
-                        }
-                        case "5" -> {
-                            addEntitiesInList(Entities.PREDATOR, intInput);
-                        }
+                        case "1" -> addEntitiesInList(Entities.ROCK, intInput);
+                        case "2" -> addEntitiesInList(Entities.GRASS, intInput);
+                        case "3" -> addEntitiesInList(Entities.TREE, intInput);
+                        case "4" -> addEntitiesInList(Entities.HERBIVORE, intInput);
+                        case "5" -> addEntitiesInList(Entities.PREDATOR, intInput);
                     }
                     addEntitiesOnMap(intInput);
                     printMap();

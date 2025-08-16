@@ -3,7 +3,7 @@ package Core;
 public abstract class Entity {
     private final String symbol;
     private final Entities type;
-    protected int idMy = 0;
+    protected int idMy;
     static protected int id = 0;
     protected static SimulationMap map;
     protected int x;
@@ -61,6 +61,4 @@ public abstract class Entity {
     public int getY() {
         return y;
     }
-
-    public abstract boolean isCreature();
 }
